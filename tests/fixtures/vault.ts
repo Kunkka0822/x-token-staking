@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { XTokenStake } from "../../target/types/x_token_stake";
+import { XTokenStaking } from "../../target/types/x_token_staking";
 import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -19,7 +19,7 @@ const VAULT_STAKE_SEED = "x_token_vault_stake";
 
 export class Vault {
     constructor(
-        public program: anchor.Program<XTokenStake>,
+        public program: anchor.Program<XTokenStaking>,
         public key: PublicKey,
         public mint: Mint,
         public mintAccount: PublicKey,
@@ -28,7 +28,7 @@ export class Vault {
     ) {}
 
     async fetch(): Promise<VaultData | null> {
-        return (await this.program.account.wait.fetchNullable(
+        return (await this.program.account.vault.fetchNullable(
             this.key
         )) as VaultData | null;
     }
@@ -43,7 +43,7 @@ export class Vault {
     }: {
         authority?: Keypair;
         vaultKey?: Keypair;
-        program: anchor.Program<XTokenStake>;
+        program: anchor.Program<XTokenStaking>;
         mint: Mint;
         duration: number;
         stakeTokenCount: number;

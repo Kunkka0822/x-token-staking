@@ -13,14 +13,14 @@ describe("x-token-staking", () => {
 
   const program = anchor.workspace.XTokenStaking as Program<XTokenStaking>;
 
-  xit("xToken-Stake", async () => {
+  it("xToken-Stake", async () => {
     const { vault } = await createVault(program);
 
     // fetch vault data
     const vaultData = await vault.fetch();
 
     //check the result
-    expect(vaultData.rewardDuration.toNumber()).to.equal(128);
+    expect(vaultData.rewardDuration.toNumber()).to.equal(1);
     expect(vaultData.stakeTokenCount).to.equal(500000);
     expect(vaultData.rewardMintAccount.toString()).to.equal(vault.mintAccount.toString());
     expect(vaultData.funders.length).to.equal(5);

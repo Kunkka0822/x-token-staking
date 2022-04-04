@@ -13,7 +13,7 @@ pub struct CreateVault<'info> {
     authority: Signer<'info>,
 
     // vault account to be created
-    #[account(init, payer=authority, space=8 + std::memo::size_of::<Vault>())]
+    #[account(init, payer=authority, space=8 + std::mem::size_of::<Vault>())]
     vault: Account<'info, Vault>,
 
     //reward pda account
@@ -21,15 +21,17 @@ pub struct CreateVault<'info> {
     reward: SystemAccount<'info>,
 
     //reward token
+    /// CHECK:
     reward_mint: AccountInfo<'info>,
 
     //reward token account to be created, owned by vault
     #[account(mut)]
+    /// CHECK:
     reward_account: UncheckedAccount<'info>,
 
     rent: Sysvar<'info, Rent>,
 
-    #[account(address=anchor_spl::associated_toke::ID)]
+    #[account(address=anchor_spl::associated_token::ID)]
     associated_token: Program<'info, AssociatedToken>,
 
     #[account(address=spl_token::id())]
@@ -43,9 +45,9 @@ pub fn create_vault(
     reward_bump: u8,
     reward_duration: u64,
     stake_token_count: u32,
-) -> Result<()> {
+) -> ProgramResult {
     if reward_duration < MIN_DURATION {
-        return Err(error!(ErrorCode::DurationTooShort));
+        return Err(ErrorCode::DurationTooShort.into());
     }
 
     // set vault
@@ -53,13 +55,13 @@ pub fn create_vault(
 
     // check vault staus
     if vault.status != VaultStatus::None {
-        return Err(error!(ErrorCode::AlreadyCreated));
+        return Err(ErrorCode::AlreadyCreated.into());
     }
 
     // create reward_account
     if ctx.accounts.reward.owner == &System::id() {
         let cpi_context = Create {
-            payer: crx.accounts.authority.to_account_info(),
+            payer: ctx.accounts.authority.to_account_info(),
             associated_token: ctx.accounts.reward_account.to_account_info(),
             authority: ctx.accounts.reward.to_account_info(),
             mint: ctx.accounts.reward_mint.to_account_info(),
@@ -69,14 +71,15 @@ pub fn create_vault(
         };
         let create_ctx = 
             CpiContext::new(ctx.accounts.associated_token.to_account_info(), cpi_context);
-        create(create_ctx);
+        create(create_ctx)?;
     }
 
     vault.authority = *ctx.accounts.authority.key;
     vault.reward_mint = *ctx.accounts.reward_mint.to_account_info().key;
-    vault.reward_mint_account = *ctx.accounts.reward_account.key();
+    vault.reward_mint_account = ctx.accounts.reward_account.key();
     vault.stake_token_count = stake_token_count;
     vault.reward_duration = reward_duration;
+    vault.reward_bump = reward_bump;
     vault.status = VaultStatus::Initialized;
     vault.staked_count = 0;
     vault.user_count = 0;

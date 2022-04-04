@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { XTokenStake } from "../../target/types/x_token_stake";
+import { XTokenStaking } from "../../target/types/x_token_stake";
 import { toPublicKey } from "./lib";
 //import { TokenAccount } from "./token-account";
 
@@ -14,11 +14,11 @@ class Mint {
     constructor(
         public key: anchor.web3.PublicKey,
         public authority: anchor.web3.Keypair,
-        public program: Program<XTokenStake>
+        public program: Program<XTokenStaking>
     ) {}
 
     static async create(
-        program: Program<XTokenStake>,
+        program: Program<XTokenStaking>,
         authority: anchor.web3.Keypair = anchor.web3.Keypair.generate(),
         mint: anchor.web3.Keypair = anchor.web3.Keypair.generate(),
         freezeAuthority: anchor.web3.PublicKey | null = null

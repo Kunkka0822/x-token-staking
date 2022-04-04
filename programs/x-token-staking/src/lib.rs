@@ -1,6 +1,11 @@
-use anchor_lang::prelude::*;
+mod constant;
+mod instructions;
+mod state;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+use anchor_lang::prelude::*;
+use instructions::*;
+
+declare_id!("FybAozi3mWJ95a87f8ihBNNbWCkR1mv64S6gJH8cDDhJ");
 
 #[program]
 pub mod x_token_staking {
@@ -11,7 +16,7 @@ pub mod x_token_staking {
         reward_bump: u8,
         reward_duration: u64,
         stake_token_count: u32,
-    ) -> Result<()> {
+    ) -> ProgramResult {
         create_vault::create_vault(ctx, reward_bump, reward_duration, stake_token_count)
     }
 }

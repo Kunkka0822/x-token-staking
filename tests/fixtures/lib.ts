@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { XTokenStake } from "../../target/types/x_token_stake";
+import { XTokenStaking } from "../../target/types/x_token_staking";
 import { Mint } from "./mint";
 import { Vault } from "./vault";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -9,7 +9,7 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 const VAULT_REWARD_SEED = "x_token_vault_reward";
 const VAULT_USER_SEED = "x_token_vault_user";
 
-async function createVault(program: Program<XTokenStake>): Promise<{
+async function createVault(program: Program<XTokenStaking>): Promise<{
     mint: Mint;
     authority: Keypair;
     vault: Vault;
@@ -41,7 +41,7 @@ function toPublicKey<T extends PublicKey | Keypair>(val: T): PublicKey {
 
 async function getRewardAddress(
     source: PublicKey,
-    program: Program<XTokenStake>
+    program: Program<XTokenStaking>
 ): Promise<[PublicKey, number]> {
     return await PublicKey.findProgramAddress(
         [Buffer.from(VAULT_REWARD_SEED), source.toBuffer()],
@@ -50,12 +50,12 @@ async function getRewardAddress(
 }
 
 async function spawnMoney(
-    program: anchor.Program<XTokenStake>,
+    program: anchor.Program<XTokenStaking>,
     to: PublicKey,
     sol: number,
 ): Promise<anchor.web3.TransactionSignature> {
     const lamports = sol * anchor.web3.LAMPORTS_PER_SOL;
-    const transaction = new anchor.webs.Transaction();
+    const transaction = new anchor.web3.Transaction();
     transaction.add(
         anchor.web3.SystemProgram.transfer({
             fromPubkey: program.provider.wallet.publicKey,
