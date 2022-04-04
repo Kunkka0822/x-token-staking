@@ -70,6 +70,7 @@ async function spawnMoney(
 
 export {
     createVault,
+    toPublicKey,
     spawnMoney,
     getRewardAddress
 };

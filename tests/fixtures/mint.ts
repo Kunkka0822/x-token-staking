@@ -25,13 +25,13 @@ class Mint {
     ): Promise<Mint> {
         const instructions = [
             anchor.web3.SystemProgram.createAccount({
-                fromPubKey: program.provider.wallet.publicKey,
+                fromPubkey: program.provider.wallet.publicKey,
                 newAccountPubkey: mint.publicKey,
-                lamports: await Token.getMinBalaceRentForExemptMint(
+                lamports: await Token.getMinBalanceRentForExemptMint(
                     program.provider.connection
                 ),
                 space: MINT_SIZE,
-                program_Id: TOKEN_PROGRAM_ID,
+                programId: TOKEN_PROGRAM_ID,
             }),
 
             //initialized mint account
