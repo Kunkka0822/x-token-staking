@@ -43,7 +43,7 @@ class Mint {
                 freezeAuthority
             ),
         ];
-        const transaction = new anchor.web3.transaction();
+        const transaction = new anchor.web3.Transaction();
         transaction.add(...instructions);
         await program.provider.send(transaction, [mint], {
             commitment: "confirmed",
