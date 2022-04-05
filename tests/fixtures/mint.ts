@@ -2,7 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { XTokenStaking } from "../../target/types/x_token_stake";
 import { toPublicKey } from "./lib";
-//import { TokenAccount } from "./token-account";
+import { TokenAccount } from "./token-account";
 
 import {
   Token,
@@ -51,6 +51,26 @@ class Mint {
         return new Mint(mint.publicKey, authority, program);
     }
 
+    async mintTokens<T extends anchor.web3.PublicKey | anchor.web3.Keypair>(
+        to: TokenAccount<T>,
+        amount: number
+    ) {
+        const transaction = new anchor.web3.Transaction();
+        transaction.add(
+            Token.createMintToInstruction(
+                TOKEN_PROGRAM_ID,
+                this.key,
+                to.key,
+                this.authority.publicKey,
+                [],
+                amount
+            )
+        );
+        await this.program.provider.send(transaction, [this.authority], {
+            commitment: "confirmed",
+        });
+    }
+
     async getAssociatedTokenAddress<
         T extends anchor.web3.PublicKey | anchor.web3.Keypair
     >(owner: T): Promise<anchor.web3.PublicKey> {
@@ -61,6 +81,27 @@ class Mint {
             toPublicKey(owner),
             true
         );
+    }
+
+    async createAssociatedAccount<
+        T extends anchor.web3.PublicKey | anchor.web3.Keypair
+    >(owner: T): Promise<TokenAccount<T>> {
+        const tokenAccount = await this.getAssociatedTokenAddress(owner);
+        const transaction = new anchor.web3.Transaction();
+        transaction.add(
+            Token.createAssociatedTokenAccountInstruction(
+                ASSOCIATED_TOKEN_PROGRAM_ID,
+                TOKEN_PROGRAM_ID,
+                this.key,
+                tokenAccount,
+                toPublicKey(owner),
+                this.program.provider.wallet.publicKey
+            )
+        );
+        await this.program.provider.send(transaction, [], {
+            commitment: "confirmed",
+        });
+        return new TokenAccount(this.program, tokenAccount, this, owner);
     }
 }
 

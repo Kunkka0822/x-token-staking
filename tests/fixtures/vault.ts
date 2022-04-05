@@ -143,6 +143,38 @@ export class Vault {
             sig: txSignature,
         };
     }
+
+    async fund({
+        authority, 
+        funder,
+        funderAccount,
+        amount,
+    }: {
+        authority: Keypair;
+        funder: Keypair;
+        funderAccount: PublicKey;
+        amount: anchor.BN;
+    }): Promise<{
+        sig: TransactionSignature;
+    }> {
+        const txSignature = await this.program.rpc.fund(amount, {
+            accounts: {
+                funder: funder.publicKey,
+                authority: authority.publicKey,
+                vault: this.key,
+                rewardAccount: this.mintAccount,
+                funderAccount,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            },
+            signers: [funder],
+            options: {
+                commitment: "confirmed",
+            },
+        });
+        return {
+            sig: txSignature
+        };
+    }
 }
 
 export type VaultStatus = {

@@ -27,7 +27,7 @@ describe("x-token-staking", () => {
     expect(vaultData.status.initialized !== null).to.be.true;
   });
 
-  it("Authorize and Unauthorized Funder", async () => {
+  xit("Authorize and Unauthorized Funder", async () => {
     const { authority, vault } = await createVault(program);
 
     // add funer
@@ -50,6 +50,34 @@ describe("x-token-staking", () => {
     // check removed funder
     expect(vaultData.funders[0].toString()).to.equal(
       PublicKey.default.toString()
+    );
+  });
+
+  it("Fund Amount", async () => {
+    const { mint, authority, vault } = await createVault(program);
+
+    // add funder
+    const { funderAdded } = await vault.addFunder(authority);
+    const funderTokenAccount = await mint.createAssociatedAccount(
+      funderAdded.publicKey
+    );
+
+    const amount = new anchor.BN("1000000");
+    await mint.mintTokens(funderTokenAccount, amount.toNumber());
+
+    // fund
+    await vault.fund({
+      authority,
+      funder: funderAdded,
+      funderAccount: funderTokenAccount.key,
+      amount: new anchor.BN("1000000"),
+    });
+
+    let vaultData = await vault.fetch();
+
+    const rightSide = "1".padEnd(66, "0");
+    expect(vaultData.rewardRate.toString()).to.equal(
+      new anchor.BN(rightSide, 2).toString()
     );
   });
 });
