@@ -96,6 +96,53 @@ export class Vault {
             sig: txSignature
         };
     }
+
+    async addFunder(
+        authority: Keypair,
+        funder = Keypair.generate()
+    ): Promise<{
+        funderAdded: Keypair;
+        sig: TransactionSignature;
+    }> {
+        const txSignature = await this.program.rpc.authorizeFunder(
+            funder.publicKey,
+            {
+                accounts: {
+                    authority: authority.publicKey,
+                    vault: this.key,
+                },
+                signers: [authority],
+                options: {
+                    commitment: "confirmed",
+                },
+            }
+        );
+        return {
+            funderAdded: funder,
+            sig: txSignature,
+        };
+    }
+
+    async removeFunder(
+        authority: Keypair,
+        funder: PublicKey
+    ): Promise<{
+        sig: TransactionSignature;
+    }> {
+        const txSignature = await this.program.rpc.unauthrorizeFunder(funder, {
+            accounts: {
+                authority: authority.publicKey,
+                vault: this.key,
+            },
+            signers: [authority],
+            options: {
+                commitment: "confirmed",
+            },
+        });
+        return {
+            sig: txSignature,
+        };
+    }
 }
 
 export type VaultStatus = {
