@@ -1,6 +1,8 @@
 mod constant;
 mod instructions;
 mod state;
+mod util;
+
 
 use anchor_lang::prelude::*;
 use instructions::*;

@@ -4,23 +4,23 @@ use crate::{
     util::get_now_timestamp,
 };
 use anchor_lang::prelude::*;
-use anchor_lang::token::TokenAccount;
+use anchor_spl::token::TokenAccount;
 
 #[derive(Accounts)]
-#[instructions(amount: u64)]
+#[instruction(amount: u64)]
 pub struct Fund<'info> {
     //funder
-    #[accounts(
+    #[account(
         signer,
         constraint = 
             funder.key() == vault.authority || vault.funders.iter().any(|x| *x == funder.key())
     )]
     /// CHECK:
-    funder: AccountInfo<'info>
+    funder: AccountInfo<'info>,
 
     // authority
     /// CHECK:
-    authority: AccountInfo<'info>
+    authority: AccountInfo<'info>,
 
     // vault
     #[account(
@@ -64,7 +64,7 @@ pub fn fund(ctx: Context<Fund>, amount: u64) -> ProgramResult {
 
         msg!("New reward deadline has been set");
     } else {
-        let remaining = vault.reward_duration_deadline.checked_sub(now);
+        let remaining = vault.reward_duration_deadline.checked_sub(now).unwrap();
         let current_value = (vault.reward_rate as u128)
             .checked_mul(remaining as u128)
             .unwrap()
