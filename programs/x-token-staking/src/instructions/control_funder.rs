@@ -4,9 +4,10 @@ use anchor_lang::prelude::*;
 #[derive(Accounts)]
 pub struct ControlFunder<'info> {
     #[account(signer)]
+    /// CHECK:
     authority: AccountInfo<'info>,
 
-    #[account(mut
+    #[account(mut,
         has_one=authority,
         constraint = vault.status == VaultStatus::Initialized
     )]
@@ -33,7 +34,7 @@ pub fn authorize_funder(ctx: Context<ControlFunder>, funder: Pubkey) -> ProgramR
     Ok(())
 }
 
-pub fun unauthorize_funder(ctx: Context<ControlFunder>, funder: Pubkey) -> ProgramResult {
+pub fn unauthorize_funder(ctx: Context<ControlFunder>, funder: Pubkey) -> ProgramResult {
     let funders = &mut ctx.accounts.vault.funders;
     if let Some(idx) = funders.iter().position(|x| *x == funder) {
         funders[idx] = Pubkey::default();

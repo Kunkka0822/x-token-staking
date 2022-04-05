@@ -129,7 +129,7 @@ export class Vault {
     ): Promise<{
         sig: TransactionSignature;
     }> {
-        const txSignature = await this.program.rpc.unauthrorizeFunder(funder, {
+        const txSignature = await this.program.rpc.unauthorizeFunder(funder, {
             accounts: {
                 authority: authority.publicKey,
                 vault: this.key,
