@@ -49,6 +49,17 @@ async function getRewardAddress(
     );
 }
 
+async function getUserAddress(
+    vault: PublicKey,
+    authority: PublicKey,
+    program: Program<XTokenStaking>
+): Promise<[PublicKey, number]> {
+    return await PublicKey.findProgramAddress(
+        [Buffer.from(VAULT_USER_SEED), vault.toBuffer(), authority.toBuffer()],
+        program.programId
+    );
+}
+
 async function spawnMoney(
     program: anchor.Program<XTokenStaking>,
     to: PublicKey,
@@ -72,5 +83,6 @@ export {
     createVault,
     toPublicKey,
     spawnMoney,
-    getRewardAddress
+    getRewardAddress,
+    getUserAddress
 };

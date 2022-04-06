@@ -53,7 +53,7 @@ describe("x-token-staking", () => {
     );
   });
 
-  it("Fund Amount", async () => {
+  xit("Fund Amount", async () => {
     const { mint, authority, vault } = await createVault(program);
 
     // add funder
@@ -80,4 +80,11 @@ describe("x-token-staking", () => {
       new anchor.BN(rightSide, 2).toString()
     );
   });
+
+  xit("Create User", async () => {
+    const { vault } = await createVault(program);
+
+    // create user
+    const { authority: userAuthority, user } = await vault.createUser();
+  })
 });

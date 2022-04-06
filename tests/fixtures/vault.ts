@@ -12,7 +12,7 @@ import {
   SystemProgram,
 } from "@solana/web3.js";
 import { Mint } from "./mint";
-import { getRewardAddress, /*getUserAddress,*/ spawnMoney } from "./lib";
+import { getRewardAddress, getUserAddress, spawnMoney } from "./lib";
 //import { TokenAccount } from "./token-account";
 
 const VAULT_STAKE_SEED = "x_token_vault_stake";
@@ -173,6 +173,38 @@ export class Vault {
         });
         return {
             sig: txSignature
+        };
+    }
+
+    async createUser(authority = Keypair.generate()): Promise<{
+        authority: Keypair;
+        user: PublicKey;
+        sig: TransactionSignature;
+    }> {
+        await spawnMoney(this.program, authority.publicKey, 10);
+        const [userAddress, userBump] = await getUserAddress(
+            this.key,
+            authority.publicKey,
+            this.program
+        );
+
+        const txSignature = await this.program.rpc.createUser(userBump, {
+            accounts: {
+                authority: authority.publicKey,
+                vault: this.key,
+                user: userAddress,
+                systemProgram: SystemProgram.programId,
+            },
+            signers: [authority],
+            options: {
+                commitment: "confirmed",
+            },
+        });
+
+        return {
+            authority,
+            user: userAddress,
+            sig: txSignature,
         };
     }
 }

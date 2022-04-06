@@ -61,7 +61,7 @@ pub fn fund(ctx: Context<Fund>, amount: u64) -> ProgramResult {
             .unwrap();
         
         vault.reward_duration_deadline = now.checked_add(vault.reward_duration).unwrap();
-
+ 
         msg!("New reward deadline has been set");
     } else {
         let remaining = vault.reward_duration_deadline.checked_sub(now).unwrap();
