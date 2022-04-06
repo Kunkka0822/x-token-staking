@@ -5,7 +5,6 @@ use crate::util::get_now_timestamp;
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
-#[instruction(user_bump: u8)]
 pub struct CreateUser<'info> {
     // authority
     #[account(mut)]
@@ -22,7 +21,7 @@ pub struct CreateUser<'info> {
         init, payer = authority, 
         seeds = [
             VAULT_USER_SEED.as_bytes(), vault.key().as_ref(), authority.key.as_ref()
-        ], bump = user_bump, space = USER_SIZE
+        ], bump, space = USER_SIZE
     )]
     user: Account<'info, User>,
 
@@ -31,5 +30,16 @@ pub struct CreateUser<'info> {
 
 pub fn create_user(ctx: Context<CreateUser>, _user_bump: u8) -> ProgramResult {
     let user = &mut ctx.accounts.user;
-    user.vault = ctx.accounts.vault.
+    user.vault = *ctx.accounts.vault.to_account_info().key;
+    user.key = *ctx.accounts.authority.key;
+    user.reward_earned_claimed = 0;
+    user.reward_earned_pending = 0;
+    user.mint_staked_count = 0;
+    user.mint_accounts = vec![];
+    user.last_stake_time = get_now_timestamp();
+
+    let vault = &mut ctx.accounts.vault;
+    vault.user_count = vault.user_count.checked_add(1).unwrap();
+
+    Ok(())
 }

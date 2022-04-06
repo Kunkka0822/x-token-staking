@@ -81,13 +81,13 @@ describe("x-token-staking", () => {
     );
   });
 
-  xit("Create User", async () => {
+  it("Create User", async () => {
     const { vault } = await createVault(program);
 
     // create user
     const { authority: userAuthority, user } = await vault.createUser();
 
-    const { userData } = await vault.fetchUser(user);
+    const userData = await vault.fetchUser(user);
     const vaultData = await vault.fetch();
 
     expect(vaultData.userCount).to.equal(1);
