@@ -33,6 +33,12 @@ export class Vault {
         )) as VaultData | null;
     }
 
+    async fetchUser(userAddress: PublicKey): Promise<UserData | null> {
+        return (await this.program.account.user.fetchNullable(
+            userAddress
+        )) as UserData | null;
+    }
+
     static async create({
         authority = Keypair.generate(),
         vaultKey = Keypair.generate(),
@@ -229,3 +235,13 @@ export type VaultData = {
     userCount: number;
     funders: PublicKey[];
 };
+
+export type UserData = {
+    vault: PublicKey;
+    key: PublicKey;
+    rewardEarnedClaimed: anchor.BN;
+    rewardEarnedPending: anchor.BN;
+    mintStakedCount: number;
+    mintAccounts: PublicKey[];
+    lastStakeTime: anchor.BN;
+}

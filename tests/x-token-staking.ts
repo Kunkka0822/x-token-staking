@@ -86,5 +86,17 @@ describe("x-token-staking", () => {
 
     // create user
     const { authority: userAuthority, user } = await vault.createUser();
+
+    const { userData } = await vault.fetchUser(user);
+    const vaultData = await vault.fetch();
+
+    expect(vaultData.userCount).to.equal(1);
+    expect(userData.vault.toString()).to.equal(vault.key.toString());
+    expect(userData.mintAccounts.length).to.equal(0);
+    expect(userData.key.toString()).to.equal(
+      userAuthority.publicKey.toString()
+    );
+    expect(userData.rewardEarnedClaimed.toNumber()).to.equal(0);
+    expect(userData.rewardEarnedPending.toNumber()).to.equal(0);
   })
 });
