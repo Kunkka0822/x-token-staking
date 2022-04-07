@@ -150,7 +150,7 @@ describe("x-token-staking", () => {
       stakeAccount.key.toString()
     );
     expect(vaultData.stakedCount).to.equal(1);
-
+    
     // unstake after 5 seconds
     await sleep(5000);
     await vault.unstake(userAuthority, user, stakeAccount);

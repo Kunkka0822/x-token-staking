@@ -279,7 +279,7 @@ export class Vault {
             accounts: {
                 staker: authority.publicKey,
                 vault: this.key,
-                unstakeaccount: stakeAccount.key,
+                unstakeAccount: stakeAccount.key,
                 vaultPda,
                 user,
                 tokenProgram: TOKEN_PROGRAM_ID,

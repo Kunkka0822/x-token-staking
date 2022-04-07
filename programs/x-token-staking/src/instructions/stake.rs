@@ -15,7 +15,7 @@ pub struct Stake<'info> {
 
     // vault
     #[account(mut)]
-    vault: Account<'info, Vault>
+    vault: Account<'info, Vault>,
 
     // stake account
     #[account(
@@ -63,7 +63,7 @@ pub fn stake(ctx: Context<Stake>) -> ProgramResult {
     } else {
         update_rewards(vault, user).unwrap();
         user.mint_staked_count = user.mint_staked_count.checked_add(1).unwrap();
-        vault.stake_account = vault.stake_account.checked_add(1).unwrap();
+        vault.staked_count = vault.staked_count.checked_add(1).unwrap();
 
         user.mint_accounts.push(stake_account.key());
 

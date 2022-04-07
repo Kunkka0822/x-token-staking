@@ -90,7 +90,7 @@ async function checkTokenAccounts(
         });
     
     const checkedAccounts = accounts.filter(
-        (v) => v.publicKey.toString() == tokenAccount.toString()
+        (v) => v.pubkey.toString() == tokenAccount.toString()
     );
     
     return checkedAccounts.length > 0;

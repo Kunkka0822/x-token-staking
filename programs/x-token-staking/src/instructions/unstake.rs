@@ -34,6 +34,7 @@ pub struct Unstake<'info> {
             staker.key().as_ref()
         ], bump
     )]
+    /// CHECK:
     vault_pda: AccountInfo<'info>,
 
     // user
@@ -112,7 +113,7 @@ pub fn unstake(ctx: Context<Unstake>, _vault_stake_bump: u8) -> ProgramResult {
         anchor_spl::token::set_authority(
             cpi_context.with_signer(&[&seeds[..]]),
             AccountOwner,
-            Some(ctx.accounts.key()),
+            Some(ctx.accounts.staker.key()),
         )?;
     }
 
