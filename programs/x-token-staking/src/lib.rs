@@ -49,4 +49,12 @@ pub mod x_token_staking {
     pub fn claim(ctx: Context<Claim>) -> ProgramResult {
         claim::claim(ctx)
     }
+
+    pub fn close_user(ctx: Context<CloseUser>) -> ProgramResult {
+        close_user::close_user(ctx)
+    }
+
+    pub fn close_vault(ctx: Context<CloseVault>) -> ProgramResult {
+        close_vault::close_vault(ctx)
+    }    
 }

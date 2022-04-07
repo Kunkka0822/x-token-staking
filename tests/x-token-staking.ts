@@ -6,7 +6,9 @@ import { PublicKey, Keypair } from "@solana/web3.js";
 import {
   createVault,
   checkTokenAccounts,
-  sleep
+  sleep,
+  getRewardAddress,
+  getTokenAmounts
 } from "./fixtures/lib";
 import { UserData, VaultData } from "./fixtures/vault";
 
@@ -228,4 +230,60 @@ describe("x-token-staking", () => {
     expect(userData.rewardEarnedPending.toNumber()).to.equal(0);
     expect(userData.rewardEarnedClaimed.toNumber()).to.above(0);
   })
+
+  xit("close user", async () => {
+    const { vault } = await createVault(program);
+
+    // create user
+    const { authority: userAuthority, user } = await vault.createUser();
+
+    // close user
+    await vault.closeUser(userAuthority, user);
+
+    const vaultData = await vault.fetch();
+    expect(vaultData.userCount).to.equal(0);
+  });
+
+  xit("close program", async () => {
+    //-----------     create vault    ------------//
+    const { authority, vault, mint } = await createVault(program);
+
+    //----------- add funder and fund ------------//
+    const { funderAdded } = await vault.addFunder(authority);
+    const funderTokenAccount = await mint.createAssociatedAccount(
+      funderAdded.publicKey
+    );
+
+    const amount = new anchor.BN("1000000");
+    await mint.mintTokens(funderTokenAccount, amount.toNumber());
+
+    // fund
+    await vault.fund({
+      authority,
+      funder: funderAdded,
+      funderAccount: funderTokenAccount.key,
+      amount: new anchor.BN("1000000"),
+    });
+
+    const refundee = Keypair.generate();
+    const refundeeAccount = await vault.mint.getAssociatedTokenAddress(
+      refundee.publicKey
+    );
+
+    // close program
+    await vault.close(authority, refundee, refundeeAccount);
+
+    const [reward, _] = await getRewardAddress(vault.key, program);
+
+    const rewardTokenAccounts = await checkTokenAccounts(
+      program,
+      reward,
+      vault.mintAccount
+    );
+
+    expect(!rewardTokenAccounts).to.be.true;
+    expect(
+      await getTokenAmounts(program, refundee.publicKey, refundeeAccount)
+    ).to.equal(1000000);
+  });
 });

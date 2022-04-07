@@ -316,6 +316,46 @@ export class Vault {
             options: { commitment: "confirmed" },
         });
     }
+    
+
+    async closeUser(authority: Keypair, user: PublicKey): Promise<boolean> {
+        await this.program.rpc.closeUser({
+            accounts: {
+                authority: authority.publicKey,
+                vault: this.key,
+                user,
+            },
+            signers: [authority],
+            options: {
+                commitment: "confirmed",
+            },
+        });
+        return true;
+    }
+    async close(
+        authority: Keypair,
+        refundee: Keypair,
+        refundAccount: PublicKey
+    ): Promise<boolean> {
+        const [reward, _] = await getRewardAddress(this.key, this.program);
+        this.program.rpc.closeVault({
+            accounts: {
+                authority: authority.publicKey,
+                vault: this.key,
+                reward,
+                rewardMint: this.mint.key,
+                refundee: refundee.publicKey,
+                refundAccount,
+                rewardMintAccount: this.mintAccount,
+                rent: SYSVAR_RENT_PUBKEY,
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                systemProgram: SystemProgram.programId,
+            },
+            signers: [authority],
+        });
+        return true;
+    }
 }
 
 export type VaultStatus = {
