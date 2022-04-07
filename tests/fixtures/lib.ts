@@ -79,10 +79,33 @@ async function spawnMoney(
     });
 }
 
+async function checkTokenAccounts(
+    program: Program<XTokenStaking>,
+    owner: PublicKey,
+    tokenAccount: PublicKey
+): Promise<boolean> {
+    const { value: accounts } = 
+        await program.provider.connection.getParsedTokenAccountsByOwner(owner, {
+            programId: new PublicKey(TOKEN_PROGRAM_ID),
+        });
+    
+    const checkedAccounts = accounts.filter(
+        (v) => v.publicKey.toString() == tokenAccount.toString()
+    );
+    
+    return checkedAccounts.length > 0;
+}
+
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export {
     createVault,
     toPublicKey,
     spawnMoney,
     getRewardAddress,
-    getUserAddress
+    getUserAddress,
+    checkTokenAccounts,
+    sleep
 };

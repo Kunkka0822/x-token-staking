@@ -13,6 +13,7 @@ import {
 } from "@solana/web3.js";
 import { Mint } from "./mint";
 import { getRewardAddress, getUserAddress, spawnMoney } from "./lib";
+import { TokenAccount } from "./token-account";
 //import { TokenAccount } from "./token-account";
 
 const VAULT_STAKE_SEED = "x_token_vault_stake";
@@ -212,6 +213,82 @@ export class Vault {
             user: userAddress,
             sig: txSignature,
         };
+    }
+
+    async stake(
+        curAuthority?: Keypair,
+        curUser?: PublicKey
+    ): Promise<{
+        userAuthority: Keypair;
+        user: PublicKey;
+        stakeAccount: TokenAccount<PublicKey>;
+        stakeMint: Mint;
+    }> {
+        let userAuthority: Keypair;
+        let user: PublicKey;
+
+        if (!curUser) {
+            // create user
+            const { authority, user: created } = await this.createUser();
+            userAuthority = authority;
+            user = created;
+        } else {
+            userAuthority = curAuthority;
+            user = curUser;
+        }
+
+        // create a token to be staked and its account of userAuthority
+        const stakeMint = await Mint.create(this.program);
+        const stakeAccount = await stakeMint.createAssociatedAccount(
+            userAuthority.publicKey
+        );
+        await stakeMint.mintTokens(stakeAccount, 1);
+
+        // stake
+        await this.program.rpc.stake({
+            accounts: {
+                staker: userAuthority.publicKey,
+                vault: this.key,
+                stakeAccount: stakeAccount.key,
+                user,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                systemProgram: SystemProgram.programId,
+            },
+            signers: [userAuthority],
+            options: { commitment: "confirmed" },
+        });
+
+        return { userAuthority, user, stakeAccount, stakeMint };
+    }
+
+    async unstake(
+        authority: Keypair,
+        user: PublicKey,
+        stakeAccount: TokenAccount<PublicKey>
+    ): Promise<boolean> {
+        const [vaultPda, vaultStakeBump] = await PublicKey.findProgramAddress(
+            [
+                Buffer.from(VAULT_STAKE_SEED),
+                this.key.toBuffer(),
+                authority.publicKey.toBuffer(),
+            ],
+            this.program.programId
+        );
+
+        await this.program.rpc.unstake(vaultStakeBump, {
+            accounts: {
+                staker: authority.publicKey,
+                vault: this.key,
+                unstakeaccount: stakeAccount.key,
+                vaultPda,
+                user,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                systemProgram: SystemProgram.programId,
+            },
+            signers: [authority],
+            options: { commitment: "confirmed" },
+        });
+        return true;
     }
 }
 

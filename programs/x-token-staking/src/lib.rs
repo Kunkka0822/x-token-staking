@@ -37,4 +37,12 @@ pub mod x_token_staking {
     pub fn create_user(ctx: Context<CreateUser>, user_bump: u8) -> ProgramResult {
         create_user::create_user(ctx, user_bump)
     }
+
+    pub fn stake(ctx: Context<Stake>) -> ProgramResult {
+        stake::stake(ctx)
+    }
+
+    pub fn unstake(ctx: Context<Unstake>, vault_stake_bump: u8) -> ProgramResult {
+        unstake::unstake(ctx, vault_stake_bump)
+    }
 }
