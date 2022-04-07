@@ -1,4 +1,4 @@
-// pub mod claim;
+pub mod claim;
 // pub mod close_user;
 // pub mod close_vault;
 pub mod control_funder;
@@ -8,7 +8,7 @@ pub mod fund;
 pub mod stake;
 pub mod unstake;
 
-// pub use claim::*;
+pub use claim::*;
 // pub use close_user::*;
 // pub use close_vault::*;
 pub use control_funder::*;

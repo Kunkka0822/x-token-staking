@@ -103,7 +103,7 @@ describe("x-token-staking", () => {
     expect(userData.rewardEarnedPending.toNumber()).to.equal(0);
   })
 
-  it("Stake and Unstake", async () => {
+  xit("Stake and Unstake", async () => {
     let userData: UserData;
     let vaultData: VaultData;
 
@@ -192,5 +192,40 @@ describe("x-token-staking", () => {
     );
     expect(vaultData.stakedCount).to.equal(1);
     expect(userData.rewardEarnedPending.toNumber()).to.equal(firstEarned);
+  })
+
+  xit("Claim", async () => {
+    let userData: UserData;
+
+    // create vault
+    const { mint, authority, vault } = await createVault(program);
+
+    // add funder and fund
+    const { funderAdded } = await vault.addFunder(authority);
+    const funderTokenAccount = await mint.createAssociatedAccount(
+      funderAdded.publicKey
+    );
+
+    const amount = new anchor.BN('1000000');
+    await mint.mintTokens(funderTokenAccount, amount.toNumber());
+
+    // fund
+    await vault.fund({
+      authority,
+      funder: funderAdded,
+      funderAccount: funderTokenAccount.key,
+      amount: new anchor.BN('1000000'),
+    });
+
+    // create user and stake
+    const { userAuthority, user, stakeAccount } = await vault.stake();
+
+    // claim after 5 seconds
+    await sleep(5000);
+    await vault.claim(authority.publicKey, userAuthority, user);
+
+    userData = await vault.fetchUser(user);
+    expect(userData.rewardEarnedPending.toNumber()).to.equal(0);
+    expect(userData.rewardEarnedClaimed.toNumber()).to.above(0);
   })
 });

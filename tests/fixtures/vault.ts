@@ -290,6 +290,32 @@ export class Vault {
         });
         return true;
     }
+
+    async claim(vaultAuthority: PublicKey, claimer: Keypair, user: PublicKey) {
+        const claimerAccount = await this.mint.getAssociatedTokenAddress(
+            claimer.publicKey
+        );
+        const [reward, _] = await getRewardAddress(this.key, this.program);
+
+        await this.program.rpc.claim({
+            accounts: {
+                claimer: claimer.publicKey,
+                vault: this.key,
+                authority: vaultAuthority,
+                reward,
+                rewardMint: this.mint.key,
+                rewardMintAccount: this.mintAccount,
+                rewardAccount: claimerAccount,
+                user,
+                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+                rent: SYSVAR_RENT_PUBKEY,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                systemProgram: SystemProgram.programId,
+            },
+            signers: [ claimer ],
+            options: { commitment: "confirmed" },
+        });
+    }
 }
 
 export type VaultStatus = {

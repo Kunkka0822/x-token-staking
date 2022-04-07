@@ -72,7 +72,7 @@ pub enum ErrorCode {
     AlreadyCreated,
     #[msg("Owner can not be a funder.")]
     OwnerCanNotBeFunder,
-    #[msg("Funder has already been authorized.")]
+    #[msg("Funder has already been authorized.")]     
     FunderAlreadyAuthorized,
     #[msg("Funders are full.")]
     FunderAlreadyFull,
